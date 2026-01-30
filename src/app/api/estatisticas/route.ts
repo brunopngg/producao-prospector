@@ -1,91 +1,118 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { query, initDB } from '@/lib/db';
+
+interface StatsRow {
+  prospector: string;
+  total_visitas: string;
+  total_apontamentos: string;
+  cod100: string;
+  cod200: string;
+  cod300: string;
+  clandestino: string;
+  registros: string;
+}
+
+interface TotaisRow {
+  total_visitas: string;
+  total_apontamentos: string;
+  cod100: string;
+  cod200: string;
+  cod300: string;
+  clandestino: string;
+  total_registros: string;
+}
 
 export async function GET(request: Request) {
   try {
+    await initDB();
+    
     const { searchParams } = new URL(request.url);
     const dataInicio = searchParams.get('dataInicio');
     const dataFim = searchParams.get('dataFim');
     const prospector = searchParams.get('prospector');
 
-    const where: Record<string, unknown> = {};
+    let whereClause = 'WHERE 1=1';
+    const params: unknown[] = [];
+    let paramIndex = 1;
 
-    if (dataInicio || dataFim) {
-      where.data = {};
-      if (dataInicio) {
-        (where.data as Record<string, Date>).gte = new Date(dataInicio);
-      }
-      if (dataFim) {
-        const endDate = new Date(dataFim);
-        endDate.setHours(23, 59, 59, 999);
-        (where.data as Record<string, Date>).lte = endDate;
-      }
+    if (dataInicio) {
+      whereClause += ` AND data >= $${paramIndex}`;
+      params.push(new Date(dataInicio));
+      paramIndex++;
+    }
+
+    if (dataFim) {
+      const endDate = new Date(dataFim);
+      endDate.setHours(23, 59, 59, 999);
+      whereClause += ` AND data <= $${paramIndex}`;
+      params.push(endDate);
+      paramIndex++;
     }
 
     if (prospector) {
-      where.prospector = prospector;
+      whereClause += ` AND prospector = $${paramIndex}`;
+      params.push(prospector);
+      paramIndex++;
     }
 
     // Agregações por prospector
-    const stats = await prisma.registro.groupBy({
-      by: ['prospector'],
-      where,
-      _sum: {
-        visitas: true,
-        cod100: true,
-        cod200: true,
-        cod300: true,
-        clandestino: true,
-        totalApontamentos: true,
-      },
-      _count: {
-        id: true,
-      },
-    });
+    const statsSql = `
+      SELECT 
+        prospector,
+        COALESCE(SUM(visitas), 0) as total_visitas,
+        COALESCE(SUM(total_apontamentos), 0) as total_apontamentos,
+        COALESCE(SUM(cod100), 0) as cod100,
+        COALESCE(SUM(cod200), 0) as cod200,
+        COALESCE(SUM(cod300), 0) as cod300,
+        COALESCE(SUM(clandestino), 0) as clandestino,
+        COUNT(*) as registros
+      FROM registros
+      ${whereClause}
+      GROUP BY prospector
+    `;
+    const stats = await query<StatsRow>(statsSql, params);
 
     // Lista única de prospectores
-    const prospectores = await prisma.registro.findMany({
-      where,
-      select: { prospector: true },
-      distinct: ['prospector'],
-    });
+    const prospectoresSql = `SELECT DISTINCT prospector FROM registros ${whereClause}`;
+    const prospectoresRows = await query<{ prospector: string }>(prospectoresSql, params);
+    const prospectores = prospectoresRows.map(p => p.prospector);
 
     // Totais gerais
-    const totais = await prisma.registro.aggregate({
-      where,
-      _sum: {
-        visitas: true,
-        cod100: true,
-        cod200: true,
-        cod300: true,
-        clandestino: true,
-        totalApontamentos: true,
-      },
-      _count: {
-        id: true,
-      },
-    });
+    const totaisSql = `
+      SELECT 
+        COALESCE(SUM(visitas), 0) as total_visitas,
+        COALESCE(SUM(total_apontamentos), 0) as total_apontamentos,
+        COALESCE(SUM(cod100), 0) as cod100,
+        COALESCE(SUM(cod200), 0) as cod200,
+        COALESCE(SUM(cod300), 0) as cod300,
+        COALESCE(SUM(clandestino), 0) as clandestino,
+        COUNT(*) as total_registros
+      FROM registros
+      ${whereClause}
+    `;
+    const totaisRows = await query<TotaisRow>(totaisSql, params);
+    const totais = totaisRows[0];
 
     return NextResponse.json({
-      porProspector: stats.map((s: typeof stats[number]) => ({
+      porProspector: stats.map((s) => ({
         prospector: s.prospector,
-        totalVisitas: s._sum.visitas || 0,
-        totalApontamentos: s._sum.totalApontamentos || 0,
-        cod100: s._sum.cod100 || 0,
-        cod200: s._sum.cod200 || 0,
-        cod300: s._sum.cod300 || 0,
-        clandestino: s._sum.clandestino || 0,
-        registros: s._count.id,
+        totalVisitas: parseInt(s.total_visitas) || 0,
+        totalApontamentos: parseInt(s.total_apontamentos) || 0,
+        cod100: parseInt(s.cod100) || 0,
+        cod200: parseInt(s.cod200) || 0,
+        cod300: parseInt(s.cod300) || 0,
+        clandestino: parseInt(s.clandestino) || 0,
+        registros: parseInt(s.registros) || 0,
       })),
-      prospectores: prospectores.map((p: { prospector: string }) => p.prospector),
+      prospectores,
       totais: {
-        totalVisitas: totais._sum.visitas || 0,
-        totalApontamentos: totais._sum.totalApontamentos || 0,
-        cod100: totais._sum.cod100 || 0,
-        cod200: totais._sum.cod200 || 0,
-        cod300: totais._sum.cod300 || 0,
-        clandestino: totais._sum.clandestino || 0,
-        totalRegistros: totais._count.id,
+        totalVisitas: parseInt(totais?.total_visitas) || 0,
+        totalApontamentos: parseInt(totais?.total_apontamentos) || 0,
+        cod100: parseInt(totais?.cod100) || 0,
+        cod200: parseInt(totais?.cod200) || 0,
+        cod300: parseInt(totais?.cod300) || 0,
+        clandestino: parseInt(totais?.clandestino) || 0,
+        totalRegistros: parseInt(totais?.total_registros) || 0,
         totalProspectores: prospectores.length,
       },
     });
