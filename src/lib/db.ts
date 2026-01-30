@@ -1,14 +1,9 @@
 import { Pool } from 'pg';
 
-// Railway internal connections don't need SSL
-// External connections via proxy may need it
-const useSSL = process.env.DATABASE_URL?.includes('.proxy.rlwy.net') 
-  ? { rejectUnauthorized: false } 
-  : false;
-
+// Railway internal connections don't use SSL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: useSSL,
+  ssl: false,
 });
 
 // Criar tabela se não existir
