@@ -9,6 +9,8 @@ interface StatsRow {
   cod200: string;
   cod300: string;
   clandestino: string;
+  inclusao: string;
+  exclusao: string;
   registros: string;
 }
 
@@ -19,6 +21,8 @@ interface TotaisRow {
   cod200: string;
   cod300: string;
   clandestino: string;
+  inclusao: string;
+  exclusao: string;
   total_registros: string;
 }
 
@@ -65,6 +69,8 @@ export async function GET(request: Request) {
         COALESCE(SUM(cod200), 0) as cod200,
         COALESCE(SUM(cod300), 0) as cod300,
         COALESCE(SUM(clandestino), 0) as clandestino,
+        COALESCE(SUM(inclusao), 0) as inclusao,
+        COALESCE(SUM(exclusao), 0) as exclusao,
         COUNT(*) as registros
       FROM registros
       ${whereClause}
@@ -86,6 +92,8 @@ export async function GET(request: Request) {
         COALESCE(SUM(cod200), 0) as cod200,
         COALESCE(SUM(cod300), 0) as cod300,
         COALESCE(SUM(clandestino), 0) as clandestino,
+        COALESCE(SUM(inclusao), 0) as inclusao,
+        COALESCE(SUM(exclusao), 0) as exclusao,
         COUNT(*) as total_registros
       FROM registros
       ${whereClause}
@@ -102,6 +110,8 @@ export async function GET(request: Request) {
         cod200: parseInt(s.cod200) || 0,
         cod300: parseInt(s.cod300) || 0,
         clandestino: parseInt(s.clandestino) || 0,
+        inclusao: parseInt(s.inclusao) || 0,
+        exclusao: parseInt(s.exclusao) || 0,
         registros: parseInt(s.registros) || 0,
       })),
       prospectores,
@@ -112,6 +122,8 @@ export async function GET(request: Request) {
         cod200: parseInt(totais?.cod200) || 0,
         cod300: parseInt(totais?.cod300) || 0,
         clandestino: parseInt(totais?.clandestino) || 0,
+        inclusao: parseInt(totais?.inclusao) || 0,
+        exclusao: parseInt(totais?.exclusao) || 0,
         totalRegistros: parseInt(totais?.total_registros) || 0,
         totalProspectores: prospectores.length,
       },

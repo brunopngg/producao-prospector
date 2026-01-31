@@ -46,6 +46,8 @@ export interface ProspectorStats {
   cod200: number;
   cod300: number;
   clandestino: number;
+  inclusao: number;
+  exclusao: number;
   registros: number;
 }
 
