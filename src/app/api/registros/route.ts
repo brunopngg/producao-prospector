@@ -185,3 +185,96 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'Erro ao excluir registro' }, { status: 500 });
   }
 }
+
+export async function PUT(request: Request) {
+  try {
+    await initDB();
+    
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 });
+    }
+
+    const body = await request.json();
+
+    const totalApontamentos = 
+      (body.cod100 || 0) + 
+      (body.cod200 || 0) + 
+      (body.cod300 || 0) + 
+      (body.clandestino || 0);
+
+    const sql = `
+      UPDATE registros SET
+        polo = $1,
+        trafo = $2,
+        visitas = $3,
+        cod100 = $4,
+        cod200 = $5,
+        cod300 = $6,
+        clandestino = $7,
+        inclusao = $8,
+        exclusao = $9,
+        ip = $10,
+        observacoes = $11,
+        status = $12,
+        total_apontamentos = $13,
+        updated_at = NOW()
+      WHERE id = $14
+      RETURNING *
+    `;
+
+    const params = [
+      body.polo,
+      body.trafo,
+      body.visitas,
+      body.cod100 || 0,
+      body.cod200 || 0,
+      body.cod300 || 0,
+      body.clandestino || 0,
+      body.inclusao || 0,
+      body.exclusao || 0,
+      body.ip || 0,
+      body.observacoes || null,
+      body.status || 'em_andamento',
+      totalApontamentos,
+      id,
+    ];
+
+    const rows = await query<Record<string, unknown>>(sql, params);
+    
+    if (rows.length === 0) {
+      return NextResponse.json({ error: 'Registro não encontrado' }, { status: 404 });
+    }
+
+    const registro = rows[0];
+
+    const result = {
+      id: registro.id,
+      data: registro.data,
+      prospector: registro.prospector,
+      polo: registro.polo,
+      prefixo: registro.prefixo,
+      trafo: registro.trafo,
+      visitas: registro.visitas,
+      cod100: registro.cod100,
+      cod200: registro.cod200,
+      cod300: registro.cod300,
+      clandestino: registro.clandestino,
+      inclusao: registro.inclusao,
+      exclusao: registro.exclusao,
+      ip: registro.ip,
+      observacoes: registro.observacoes,
+      status: registro.status,
+      totalApontamentos: registro.total_apontamentos,
+      createdAt: registro.created_at,
+      updatedAt: registro.updated_at,
+    };
+
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('Erro ao atualizar registro:', error);
+    return NextResponse.json({ error: 'Erro ao atualizar registro' }, { status: 500 });
+  }
+}

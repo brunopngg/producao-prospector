@@ -7,10 +7,11 @@ import { formatDateTime } from '@/config/constants';
 interface RecentRecordsProps {
   registros: Registro[];
   onDelete: (id: string) => void;
+  onEdit: (registro: Registro) => void;
   isLoading: boolean;
 }
 
-export default function RecentRecords({ registros, onDelete, isLoading }: RecentRecordsProps) {
+export default function RecentRecords({ registros, onDelete, onEdit, isLoading }: RecentRecordsProps) {
   if (registros.length === 0) {
     return (
       <div className="card p-6 animate-fade-in">
@@ -57,17 +58,26 @@ export default function RecentRecords({ registros, onDelete, isLoading }: Recent
                   </span>
                 </td>
                 <td className="px-4 py-3 text-center">
-                  <button
-                    onClick={() => {
-                      if (confirm(`Tem certeza que deseja excluir o registro do trafo ${registro.trafo}?`)) {
-                        onDelete(registro.id);
-                      }
-                    }}
-                    className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded font-semibold text-xs transition-colors disabled:opacity-50"
-                    disabled={isLoading}
-                  >
-                    🗑️ Excluir
-                  </button>
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      onClick={() => onEdit(registro)}
+                      className="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1.5 rounded font-semibold text-xs transition-colors disabled:opacity-50"
+                      disabled={isLoading}
+                    >
+                      ✏️ Editar
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Tem certeza que deseja excluir o registro do trafo ${registro.trafo}?`)) {
+                          onDelete(registro.id);
+                        }
+                      }}
+                      className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded font-semibold text-xs transition-colors disabled:opacity-50"
+                      disabled={isLoading}
+                    >
+                      🗑️ Excluir
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
