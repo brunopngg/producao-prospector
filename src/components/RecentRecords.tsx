@@ -27,7 +27,48 @@ export default function RecentRecords({ registros, onDelete, onEdit, isLoading }
   return (
     <div className="card p-6 animate-fade-in">
       <h2 className="text-lg font-semibold text-neutral-900 mb-4">Registros Recentes</h2>
-      <div className="overflow-x-auto">
+      <div className="md:hidden space-y-3">
+        {registros.map((registro) => (
+          <div key={registro.id} className="border border-neutral-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-neutral-900">{registro.prospector} · {registro.prefixo}</p>
+                <p className="text-xs text-neutral-500">{formatDateTime(registro.createdAt)}</p>
+              </div>
+              <span className={`badge ${registro.status === 'executado' ? 'badge-success' : 'badge-warning'}`}>
+                {registro.status === 'executado' ? 'Executado' : 'Em Andamento'}
+              </span>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+              <div><span className="text-neutral-500">Polo:</span> {registro.polo}</div>
+              <div><span className="text-neutral-500">Trafo:</span> {registro.trafo}</div>
+              <div><span className="text-neutral-500">Visitas:</span> {registro.visitas}</div>
+              <div><span className="text-neutral-500">Apont.:</span> {registro.totalApontamentos}</div>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={() => onEdit(registro)}
+                className="flex-1 bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-2 rounded font-semibold text-xs transition-colors disabled:opacity-50"
+                disabled={isLoading}
+              >
+                ✏️ Editar
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm(`Tem certeza que deseja excluir o registro do trafo ${registro.trafo}?`)) {
+                    onDelete(registro.id);
+                  }
+                }}
+                className="flex-1 bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded font-semibold text-xs transition-colors disabled:opacity-50"
+                disabled={isLoading}
+              >
+                🗑️ Excluir
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="overflow-x-auto hidden md:block">
         <table className="w-full">
           <thead>
             <tr className="table-header">
