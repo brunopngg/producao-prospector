@@ -46,8 +46,8 @@ export default function EvolutionChart({ data }: EvolutionChartProps) {
   return (
     <div className="card p-6 animate-fade-in">
       <h2 className="text-lg font-semibold text-neutral-900 mb-4">📈 Evolução Diária</h2>
-      <div className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="h-[300px]" style={{ minHeight: 300 }}>
+        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={250}>
           <LineChart data={formattedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
             <XAxis 

@@ -134,8 +134,8 @@ export default function Charts({ data, tipoApontamento }: ChartsProps) {
             <span className="text-xs font-bold text-gray-600 bg-gray-100 px-3 py-1.5 rounded">✗ Faltou</span>
           </div>
         </div>
-        <div className="h-[350px]">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-[350px]" style={{ minHeight: 350 }}>
+          <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={300}>
             <BarChart data={visitasData} margin={{ top: 30, right: 20, left: 20, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
               <XAxis 
@@ -257,13 +257,13 @@ export default function Charts({ data, tipoApontamento }: ChartsProps) {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-base font-bold text-neutral-900">🎯 Apontamentos por Tipo</h3>
           </div>
-          <div className="h-[300px]">
+          <div className="h-[300px]" style={{ minHeight: 300 }}>
             {!hasAnyData ? (
               <div className="h-full flex items-center justify-center text-neutral-500">
                 Nenhum dado disponível
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={200} minHeight={250}>
                 <BarChart data={apontamentosData} margin={{ top: 20, right: 20, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
                   <XAxis dataKey="name" tick={{ fontSize: 11, fontWeight: 600 }} />
@@ -315,13 +315,13 @@ export default function Charts({ data, tipoApontamento }: ChartsProps) {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-base font-bold text-neutral-900">📝 Inclusão e Exclusão</h3>
           </div>
-          <div className="h-[300px]">
+          <div className="h-[300px]" style={{ minHeight: 300 }}>
             {!hasAnyData ? (
               <div className="h-full flex items-center justify-center text-neutral-500">
                 Nenhum dado disponível
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={200} minHeight={250}>
                 <BarChart data={inclusaoExclusaoData} margin={{ top: 20, right: 20, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
                   <XAxis dataKey="name" tick={{ fontSize: 11, fontWeight: 600 }} />
