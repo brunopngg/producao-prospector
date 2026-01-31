@@ -58,11 +58,15 @@ export default function RecentRecords({ registros, onDelete, isLoading }: Recent
                 </td>
                 <td className="px-4 py-3 text-center">
                   <button
-                    onClick={() => onDelete(registro.id)}
-                    className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors"
+                    onClick={() => {
+                      if (confirm(`Tem certeza que deseja excluir o registro do trafo ${registro.trafo}?`)) {
+                        onDelete(registro.id);
+                      }
+                    }}
+                    className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded font-semibold text-xs transition-colors disabled:opacity-50"
                     disabled={isLoading}
                   >
-                    Excluir
+                    🗑️ Excluir
                   </button>
                 </td>
               </tr>

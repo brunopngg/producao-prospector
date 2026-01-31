@@ -41,15 +41,14 @@ export default function ProspectorTable({ data }: ProspectorTableProps) {
           </thead>
           <tbody className="divide-y divide-neutral-100">
             {data.map((prospector) => {
-              const metaTotal = META_VISITAS * prospector.registros;
-              const percentMeta = metaTotal > 0 ? Math.round((prospector.totalVisitas / metaTotal) * 100) : 0;
+              const percentMeta = META_VISITAS > 0 ? Math.round((prospector.totalVisitas / META_VISITAS) * 100) : 0;
               const aboveMeta = percentMeta >= 100;
 
               return (
                 <tr key={prospector.prospector} className="hover:bg-neutral-50 transition-colors">
                   <td className="px-4 py-3 text-sm font-semibold text-neutral-900">{prospector.prospector}</td>
                   <td className="px-4 py-3 text-sm text-center font-medium text-neutral-900">{prospector.totalVisitas}</td>
-                  <td className="px-4 py-3 text-sm text-center text-neutral-600">{metaTotal}</td>
+                  <td className="px-4 py-3 text-sm text-center text-neutral-600">{META_VISITAS}</td>
                   <td className="px-4 py-3 text-sm text-center">
                     <span className={`font-semibold ${aboveMeta ? 'text-green-600' : 'text-red-600'}`}>
                       {percentMeta}%
