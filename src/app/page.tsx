@@ -392,7 +392,7 @@ export default function Home() {
       <footer className="py-4 border-t border-neutral-200 bg-white print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <p className="text-xs text-neutral-400 text-center">
-            Produtividade Prospector · {new Date().getFullYear()}
+            Produtividade Prospector · 2026
           </p>
           <p className="text-xs text-neutral-500 text-center mt-1">
             Desenvolvido por <span className="font-medium text-neutral-600">Bruno Lima</span> - ADM - GSTC

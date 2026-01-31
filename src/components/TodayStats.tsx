@@ -12,6 +12,15 @@ interface TodayStatsProps {
 
 const ALL_PROSPECTORS = Object.values(POLOS).flatMap(polo => polo.prefixos);
 
+// Função para formatar data que funciona tanto no servidor quanto cliente
+const formatarDataHoje = () => {
+  try {
+    return new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+  } catch {
+    return '';
+  }
+};
+
 export default function TodayStats({ visitas, apontamentos, prospectoresAtivos, trafos }: TodayStatsProps) {
   const totalProspectores = ALL_PROSPECTORS.length;
   const faltantes = totalProspectores - prospectoresAtivos;
@@ -22,8 +31,8 @@ export default function TodayStats({ visitas, apontamentos, prospectoresAtivos, 
     <div className="card p-6 animate-fade-in bg-gradient-to-r from-neutral-900 to-neutral-800 text-white">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold">📅 Resumo de Hoje</h2>
-        <span className="text-sm bg-white/20 px-3 py-1 rounded-full">
-          {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+        <span className="text-sm bg-white/20 px-3 py-1 rounded-full" suppressHydrationWarning>
+          {formatarDataHoje()}
         </span>
       </div>
       
